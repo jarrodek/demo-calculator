@@ -103,7 +103,7 @@ export class CalculatorApp {
   }
   /**
    * Adds the minus symbol to the queue.
-   * When unlike other sumbol adding functions this will always add
+   * Unlike other symbol adding functions, this always adds
    * the symbol to the queue as minus is a negation of a value before it (even
    * if the value is another minus).
    */
@@ -139,46 +139,50 @@ export class CalculatorApp {
    */
   dot() {
     // If the last element in queue is not a number then push 0 value in front
-    // as this will be fraction of 1.
+    // as this will be fraction of 0.
     const last = this.queue[this.queue.length - 1];
     if (last === undefined || isNaN(last)) {
       this.queue[this.queue.length] = 0;
     } else if (typeof last === 'string') {
       // This is already a decimal value which in this app is represented as
-      // string.
+      // a number casted to string.
       return;
     }
     this._pushSumbol(CalculatorApp.DOT_SYMBOL);
   }
   /**
-   * Cancels previous user input.
+   * Removes previous user input.
    */
   backspace() {
     const last = this.queue[this.queue.length - 1];
     if (last === undefined) {
       return;
     }
-    // If it's a symbol then
+    // If it's a symbol then just remove it from the queue
     if (isNaN(last)) {
       this.queue.pop();
     } else {
       const int = Number.isInteger(last);
       let tmp = String(last);
       if (!tmp || tmp.length === 1) {
+        // empty or one character items can be just removed from the queue
         this.queue.pop();
       } else {
+        // Because the `tmp` is string we can just remove last character...
         tmp = tmp.substr(0, tmp.length - 1);
+        // ,,, and cast it to Number if it was previously a number (integer to be precise,
+        // float number are kept as strings).
         this.queue[this.queue.length - 1] = int ? Number(tmp) : tmp;
       }
     }
     this.render();
   }
   /**
-   * Adds new symbot to the queue and performs some checks beforehand.
-   * If last element in the queue is a symbol then the symbol is replaced by current value.
+   * Adds a new symbol to the queue and performs some checks beforehand.
+   * If last element in the queue is a symbol then this symbol is replaced by current value.
    * Otherwise it is being added to the end of the queue.
    *
-   * Also if the last element is undefined (no previous element) the adding symbol operation
+   * Also if the last element is `undefined` (no previous element) the adding symbol operation
    * is ignored as there's no point of adding it.
    * In this case there's no need to inform the user about the error.
    * @param {String} symbol An operation symbol to append.
@@ -189,6 +193,7 @@ export class CalculatorApp {
       return;
     }
     if (isNaN(last)) {
+      // If it's not a number then it must be a symbol. Replace it with new one.
       this.queue[this.queue.length - 1] = symbol;
     } else {
       this.queue[this.queue.length] = symbol;
@@ -202,6 +207,7 @@ export class CalculatorApp {
   calculate() {
     // Make a copy of the array so we can manipulate it's values.
     const queue = Array.from(this.queue);
+    // Just a sanity check
     if (queue.length === 0) {
       this.opResult.innerText = 0;
       return;
@@ -210,7 +216,7 @@ export class CalculatorApp {
     if (isNaN(queue[queue.length - 1])) {
       queue.pop();
     }
-    // Again just to be sure
+    // Again, just to be sure
     if (queue.length === 0) {
       this.opResult.innerText = 0;
       return;
@@ -223,7 +229,7 @@ export class CalculatorApp {
     // this is another iteration over the array. It is called the big O or order of function.
     // With this 3 loops the complexity is O(3n) meaning for n number of elements
     // in the array each array may iterate over all initial items (3 times together).
-    // The same could have been done in other 2 loops (reducing it to O(2)) by giving more conditions
+    // The same could have been done in other 2 loops (reducing it to O(2n)) by giving more conditions
     // but for code readibility I decided to split it into 3 loops.
     for (let i = queue.length - 1; i >= 0; i--) {
       const current = queue[i];
@@ -234,17 +240,20 @@ export class CalculatorApp {
       const next = queue[i + 1];
       queue[i + 1] = -Number(next);
       if (!isNaN(previous)) {
+        // if the previous item in the array is a number then replace minus with plus.
         queue[i] = CalculatorApp.PLUS_SYMBOL;
       } else {
+        // Otherwise previous item is an operator and therefore we don't need minus
+        // at this position anymore.
         queue.splice(i, 1);
       }
     }
 
-    // Now, multiply and divide values as this operations have priority.
-    // The function looks for multiply and divide symbols in the queue and
+    // Now, multiply and divide values as this operations have higher priority.
+    // The loop "looks" for multiply and divide symbols in the queue and
     // performs the operations between number before an after the symbol.
     // The result replaces all 3 items in the queue.
-    // Because array length may change during the oprtation we begin to iterate
+    // Because array length may change during this oprtation we begin to iterate
     // from the end of the array.
     for (let i = queue.length - 1; i >= 0; i--) {
       const current = queue[i];
@@ -264,18 +273,18 @@ export class CalculatorApp {
       const result = current === CalculatorApp.DIVIDE_SYMBOL ? previous / next : previous * next;
       queue.splice(i - 1, 3, result);
     }
-    // At this point the queue contains only sum and minus symbols.
-    // We are iterating over the array again from the end of the array performing +/-
-    // operations until we are left with a single item which is the result
+    // At this point the queue contains only sum symbols.
+    // We are iterating over the array again from the end of the array performing ADD
+    // operation until we are left with a single item which is the result
     for (let i = queue.length - 1; i >= 0; i--) {
       const current = queue[i];
-      if (current !== CalculatorApp.PLUS_SYMBOL && current !== CalculatorApp.MINUS_SYMBOL) {
+      if (current !== CalculatorApp.PLUS_SYMBOL) {
         // it must be a number and we are looking for operators.
         continue;
       }
       const next = Number(queue[i + 1]);
       const previous = Number(queue[i - 1]);
-      const result = current === CalculatorApp.PLUS_SYMBOL ? previous + next : previous - next;
+      const result = previous + next;
       queue.splice(i - 1, 3, result);
     }
     // At this point there's only one element in the queue. This is the result
@@ -287,7 +296,7 @@ export class CalculatorApp {
   /**
    * Prints an error when the user requested illigal operation of division by zero.
    * Note, in JavaScript division by 0 results with `Infinity` number.
-   * From the mathematical pov it is incorrect as this operation is just impossible
+   * From the mathematical pov it is incorrect as this operation is impossible
    * and cannot return a value. Therefore division by 0 is tested here manually
    * and the error is then printed.
    */
@@ -300,9 +309,10 @@ export class CalculatorApp {
    * @param {String|Number} value Numeric value to process
    */
   processNumber(value) {
-    // cast to a number just to be sure.
+    // cast to a number, just to be sure.
     value = Number(value);
     if (value !== value) {
+      // NaN !== NaN
       console.warn('Passed value is not a number.');
       return;
     }
@@ -313,7 +323,7 @@ export class CalculatorApp {
     } else {
       // Otherwise we have to deal with previous user input.
       // In general principle if a previous item is a number then the calculator
-      // needs to concatenate to numbers together (not add!).
+      // needs to concatenate the numbers together (not add!).
       // It is getting more complicated if the number is a float value. Additional
       // operations has to be performed (described below).
       // When the last operation was a "." then the calculator also has to deal with fractions.
@@ -334,7 +344,7 @@ export class CalculatorApp {
         } else {
           // Easy, in this case the calculator has to multiply last value by 10
           // and add current value.
-          // Note, last value cannot be fraction here as fractions were detected earlier.
+          // Note, last value cannot be a fraction here as fractions were detected earlier.
           last = last * 10 + value;
         }
         this.queue[this.queue.length - 1] = last;
@@ -395,8 +405,8 @@ export class CalculatorApp {
   }
   /**
    * Handles keyboard down event.
-   * Depending on the originating key it performs aoperation on the calculator
-   * usfing defined functions like `add()`, `subtract()` etc.
+   * Depending on the originating key it performs operation on the calculator
+   * using defined functions like `add()`, `subtract()` etc.
    * @param {KeyboardEvent} e
    */
   _keyDownHandler(e) {
@@ -427,7 +437,7 @@ export class CalculatorApp {
         this.backspace();
         break;
       default:
-        // Numpad equals sign is the same button as enter. It can be checked using
+        // Numpad's "equals" sign is the same button as enter. It can be tested using
         // KeyboardEvent.code property.
         if (e.code === 'NumpadEnter') {
           this.calculate();
