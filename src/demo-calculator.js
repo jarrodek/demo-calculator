@@ -23,7 +23,7 @@ export class CalculatorApp {
     return '.';
   }
   /**
-   * @return {Element} Reference to the formula parts dispay node.
+   * @return {Element} Reference to the formula parts display node.
    */
   get partsResult() {
     if (!this.__partsResult) {
@@ -32,7 +32,7 @@ export class CalculatorApp {
     return this.__partsResult;
   }
   /**
-   * @return {Element} Reference to the result dispay node.
+   * @return {Element} Reference to the result display node.
    */
   get opResult() {
     if (!this.__opResult) {
@@ -52,7 +52,7 @@ export class CalculatorApp {
   }
   /**
    * Initializes the calculator app by attaching event listener to each button.
-   * This could be optymized by adding single event listener on a parent of all
+   * This could be optimized by adding single event listener on a parent of all
    * buttons but this is out of scope of this tutorial.
    */
   init() {
@@ -96,10 +96,10 @@ export class CalculatorApp {
   }
   /**
    * Adds the add symbol to the queue.
-   * This operation is ignored when there's no previus element.
+   * This operation is ignored when there's no previous element.
    */
   add() {
-    this._pushSumbol(CalculatorApp.PLUS_SYMBOL);
+    this._pushSymbol(CalculatorApp.PLUS_SYMBOL);
   }
   /**
    * Adds the minus symbol to the queue.
@@ -113,22 +113,22 @@ export class CalculatorApp {
       this.queue[this.queue.length] = CalculatorApp.MINUS_SYMBOL;
       this.render();
     } else {
-      this._pushSumbol(CalculatorApp.MINUS_SYMBOL);
+      this._pushSymbol(CalculatorApp.MINUS_SYMBOL);
     }
   }
   /**
    * Adds the multiply symbol to the queue.
-   * This operation is ignored when there's no previus element.
+   * This operation is ignored when there's no previous element.
    */
   multiply() {
-    this._pushSumbol(CalculatorApp.MULTIPLY_SYMBOL);
+    this._pushSymbol(CalculatorApp.MULTIPLY_SYMBOL);
   }
   /**
    * Adds the divide symbol to the queue.
-   * This operation is ignored when there's no previus element.
+   * This operation is ignored when there's no previous element.
    */
   divide() {
-    this._pushSumbol(CalculatorApp.DIVIDE_SYMBOL);
+    this._pushSymbol(CalculatorApp.DIVIDE_SYMBOL);
   }
   /**
    * Adds "dot" (decimal symbol) to the queue.
@@ -148,7 +148,7 @@ export class CalculatorApp {
       // a number casted to string.
       return;
     }
-    this._pushSumbol(CalculatorApp.DOT_SYMBOL);
+    this._pushSymbol(CalculatorApp.DOT_SYMBOL);
   }
   /**
    * Removes previous user input.
@@ -187,7 +187,7 @@ export class CalculatorApp {
    * In this case there's no need to inform the user about the error.
    * @param {String} symbol An operation symbol to append.
    */
-  _pushSumbol(symbol) {
+  _pushSymbol(symbol) {
     const last = this.queue[this.queue.length - 1];
     if (last === undefined) {
       return;
@@ -230,7 +230,7 @@ export class CalculatorApp {
     // With this 3 loops the complexity is O(3n) meaning for n number of elements
     // in the array each array may iterate over all initial items (3 times together).
     // The same could have been done in other 2 loops (reducing it to O(2n)) by giving more conditions
-    // but for code readibility I decided to split it into 3 loops.
+    // but for code readability I decided to split it into 3 loops.
     for (let i = queue.length - 1; i >= 0; i--) {
       const current = queue[i];
       if (current !== CalculatorApp.MINUS_SYMBOL) {
@@ -253,7 +253,7 @@ export class CalculatorApp {
     // The loop "looks" for multiply and divide symbols in the queue and
     // performs the operations between number before an after the symbol.
     // The result replaces all 3 items in the queue.
-    // Because array length may change during this oprtation we begin to iterate
+    // Because array length may change during this operation we begin to iterate
     // from the end of the array.
     for (let i = queue.length - 1; i >= 0; i--) {
       const current = queue[i];
@@ -294,7 +294,7 @@ export class CalculatorApp {
     this.queue = isNaN(queue[0]) ? [] : queue;
   }
   /**
-   * Prints an error when the user requested illigal operation of division by zero.
+   * Prints an error when the user requested illegal operation of division by zero.
    * Note, in JavaScript division by 0 results with `Infinity` number.
    * From the mathematical pov it is incorrect as this operation is impossible
    * and cannot return a value. Therefore division by 0 is tested here manually
@@ -305,7 +305,7 @@ export class CalculatorApp {
   }
 
   /**
-   * Processses numeric value input.
+   * Processes numeric value input.
    * @param {String|Number} value Numeric value to process
    */
   processNumber(value) {
@@ -437,7 +437,7 @@ export class CalculatorApp {
         this.backspace();
         break;
       default:
-        // Numpad's "equals" sign is the same button as enter. It can be tested using
+        // The "equals" sign on the num pad is the same button as enter. It can be tested using
         // KeyboardEvent.code property.
         if (e.code === 'NumpadEnter') {
           this.calculate();

@@ -55,8 +55,8 @@ describe('CalculatorApp', () => {
       instance.queue = [1];
     });
 
-    it('Calls _pushSumbol() with argument', () => {
-      const spy = sinon.spy(instance, '_pushSumbol');
+    it('Calls _pushSymbol() with argument', () => {
+      const spy = sinon.spy(instance, '_pushSymbol');
       instance.add();
       assert.equal(spy.args[0][0], CalculatorApp.PLUS_SYMBOL);
     });
@@ -74,8 +74,8 @@ describe('CalculatorApp', () => {
       instance.queue = [1];
     });
 
-    it('Calls _pushSumbol() with argument', () => {
-      const spy = sinon.spy(instance, '_pushSumbol');
+    it('Calls _pushSymbol() with argument', () => {
+      const spy = sinon.spy(instance, '_pushSymbol');
       instance.multiply();
       assert.equal(spy.args[0][0], CalculatorApp.MULTIPLY_SYMBOL);
     });
@@ -93,8 +93,8 @@ describe('CalculatorApp', () => {
       instance.queue = [1];
     });
 
-    it('Calls _pushSumbol() with argument', () => {
-      const spy = sinon.spy(instance, '_pushSumbol');
+    it('Calls _pushSymbol() with argument', () => {
+      const spy = sinon.spy(instance, '_pushSymbol');
       instance.divide();
       assert.equal(spy.args[0][0], CalculatorApp.DIVIDE_SYMBOL);
     });
@@ -112,8 +112,8 @@ describe('CalculatorApp', () => {
       instance.queue = [1];
     });
 
-    it('Calls _pushSumbol() with argument', () => {
-      const spy = sinon.spy(instance, '_pushSumbol');
+    it('Calls _pushSymbol() with argument', () => {
+      const spy = sinon.spy(instance, '_pushSymbol');
       instance.subtract();
       assert.equal(spy.args[0][0], CalculatorApp.MINUS_SYMBOL);
     });
@@ -143,8 +143,8 @@ describe('CalculatorApp', () => {
       instance.queue = [1];
     });
 
-    it('Calls _pushSumbol() with argument', () => {
-      const spy = sinon.spy(instance, '_pushSumbol');
+    it('Calls _pushSymbol() with argument', () => {
+      const spy = sinon.spy(instance, '_pushSymbol');
       instance.dot();
       assert.equal(spy.args[0][0], CalculatorApp.DOT_SYMBOL);
     });
@@ -218,26 +218,26 @@ describe('CalculatorApp', () => {
     });
 
     it('Ignores the call when no items in the queue', () => {
-      instance._pushSumbol('+');
+      instance._pushSymbol('+');
       assert.deepEqual(instance.queue, []);
     });
 
     it('Adds new symbol to the queue', () => {
       instance.queue = [1];
-      instance._pushSumbol('+');
+      instance._pushSymbol('+');
       assert.deepEqual(instance.queue, [1, '+']);
     });
 
     it('Replaces previous symbol', () => {
       instance.queue = [1, '+'];
-      instance._pushSumbol('-');
+      instance._pushSymbol('-');
       assert.deepEqual(instance.queue, [1, '-']);
     });
 
     it('Calls render function', () => {
       const spy = sinon.spy(instance, 'render');
       instance.queue = [1, '+'];
-      instance._pushSumbol('-');
+      instance._pushSymbol('-');
       assert.isTrue(spy.called);
     });
   });
