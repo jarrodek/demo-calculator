@@ -35,7 +35,7 @@
     "@commitlint/config-conventional": "^12.1.1",
     "@open-wc/building-rollup": "^1.10.0",
     "@open-wc/eslint-config": "^4.3.0",
-    "@open-wc/testing": "^2.5.33",
+    "@open-wc/testing": "^3.1.7",
     "@polymer/iron-test-helpers": "^3.0.1",
     "@web/dev-server": "^0.1.17",
     "@web/test-runner": "^0.13.4",
