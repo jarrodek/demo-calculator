@@ -1,3 +1,9 @@
+/* eslint-disable prefer-destructuring */
+/* eslint-disable no-self-compare */
+/* eslint-disable no-param-reassign */
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-continue */
+/* eslint-disable no-plusplus */
 /**
  * A tutorial application that shows how to build a calculator application
  * in JavaScript.
@@ -22,8 +28,9 @@ export class CalculatorApp {
   static get DOT_SYMBOL() {
     return '.';
   }
+
   /**
-   * @return {Element} Reference to the formula parts display node.
+   * @return {HTMLElement} Reference to the formula parts display node.
    */
   get partsResult() {
     if (!this.__partsResult) {
@@ -31,8 +38,9 @@ export class CalculatorApp {
     }
     return this.__partsResult;
   }
+
   /**
-   * @return {Element} Reference to the result display node.
+   * @returns {HTMLElement} Reference to the result display node.
    */
   get opResult() {
     if (!this.__opResult) {
@@ -50,6 +58,7 @@ export class CalculatorApp {
     // This is where the list of operations is kept.
     this.queue = [];
   }
+
   /**
    * Initializes the calculator app by attaching event listener to each button.
    * This could be optimized by adding single event listener on a parent of all
@@ -63,17 +72,32 @@ export class CalculatorApp {
     }
     document.body.addEventListener('keydown', this._keyDownHandler);
   }
+
+  /**
+   * Cleans up and releases used resources.
+   * It removes event listeners.
+   */
+  release() {
+    const nodes = document.querySelectorAll('button.action');
+    for (let i = 0, len = nodes.length; i < len; i++) {
+      nodes[i].removeEventListener('click', this._actionHandler);
+      nodes[i].removeEventListener('mouseup', this._mouseUpHandler);
+    }
+    document.body.removeEventListener('keydown', this._keyDownHandler);
+  }
+
   /**
    * Click event handler for all action buttons. It calls corresponding function
    * depending on user selection. It looks for the `data-value` attribute for
    * button's value which can be a numeric value if an operation.
-   * @param {ClickEvent} e
+   * @param {MouseEvent} e
    */
   _actionHandler(e) {
     // e.target is the button being clicked on
     // target.dataset is a list of `data-*` attributes
     // dataset.value is the `data-value=...` attribute's value.
-    const operation = e.target.dataset.value;
+    const button = /** @type HTMLButtonElement */ (e.target);
+    const operation = button.dataset.value;
     switch (operation) {
       case 'add': this.add(); break;
       case 'sub': this.subtract(); break;
@@ -85,6 +109,7 @@ export class CalculatorApp {
         this.processNumber(operation);
     }
   }
+  
   /**
    * A handler for mouse up event dispatched from an action button.
    * When clicking and releasing this removes focus from a button so it won't
@@ -92,8 +117,10 @@ export class CalculatorApp {
    * @param {MouseEvent} e
    */
   _mouseUpHandler(e) {
-    e.target.blur();
+    const button = /** @type HTMLButtonElement */ (e.target);
+    button.blur();
   }
+
   /**
    * Adds the add symbol to the queue.
    * This operation is ignored when there's no previous element.
@@ -101,6 +128,7 @@ export class CalculatorApp {
   add() {
     this._pushSymbol(CalculatorApp.PLUS_SYMBOL);
   }
+
   /**
    * Adds the minus symbol to the queue.
    * Unlike other symbol adding functions, this always adds
@@ -109,13 +137,14 @@ export class CalculatorApp {
    */
   subtract() {
     const last = this.queue[this.queue.length - 1];
-    if (last === undefined || isNaN(last)) {
+    if (last === undefined || Number.isNaN(Number(last))) {
       this.queue[this.queue.length] = CalculatorApp.MINUS_SYMBOL;
       this.render();
     } else {
       this._pushSymbol(CalculatorApp.MINUS_SYMBOL);
     }
   }
+
   /**
    * Adds the multiply symbol to the queue.
    * This operation is ignored when there's no previous element.
@@ -123,6 +152,7 @@ export class CalculatorApp {
   multiply() {
     this._pushSymbol(CalculatorApp.MULTIPLY_SYMBOL);
   }
+
   /**
    * Adds the divide symbol to the queue.
    * This operation is ignored when there's no previous element.
@@ -130,6 +160,7 @@ export class CalculatorApp {
   divide() {
     this._pushSymbol(CalculatorApp.DIVIDE_SYMBOL);
   }
+  
   /**
    * Adds "dot" (decimal symbol) to the queue.
    * It performs the following sanity check beforehand:
@@ -141,7 +172,7 @@ export class CalculatorApp {
     // If the last element in queue is not a number then push 0 value in front
     // as this will be fraction of 0.
     const last = this.queue[this.queue.length - 1];
-    if (last === undefined || isNaN(last)) {
+    if (last === undefined || Number.isNaN(Number(last))) {
       this.queue[this.queue.length] = 0;
     } else if (typeof last === 'string') {
       // This is already a decimal value which in this app is represented as
@@ -150,6 +181,7 @@ export class CalculatorApp {
     }
     this._pushSymbol(CalculatorApp.DOT_SYMBOL);
   }
+
   /**
    * Removes previous user input.
    */
@@ -159,7 +191,7 @@ export class CalculatorApp {
       return;
     }
     // If it's a symbol then just remove it from the queue
-    if (isNaN(last)) {
+    if (Number.isNaN(Number(last))) {
       this.queue.pop();
     } else {
       const int = Number.isInteger(last);
@@ -169,7 +201,7 @@ export class CalculatorApp {
         this.queue.pop();
       } else {
         // Because the `tmp` is string we can just remove last character...
-        tmp = tmp.substr(0, tmp.length - 1);
+        tmp = tmp.substring(0, tmp.length - 1);
         // ,,, and cast it to Number if it was previously a number (integer to be precise,
         // float number are kept as strings).
         this.queue[this.queue.length - 1] = int ? Number(tmp) : tmp;
@@ -177,6 +209,7 @@ export class CalculatorApp {
     }
     this.render();
   }
+
   /**
    * Adds a new symbol to the queue and performs some checks beforehand.
    * If last element in the queue is a symbol then this symbol is replaced by current value.
@@ -185,14 +218,14 @@ export class CalculatorApp {
    * Also if the last element is `undefined` (no previous element) the adding symbol operation
    * is ignored as there's no point of adding it.
    * In this case there's no need to inform the user about the error.
-   * @param {String} symbol An operation symbol to append.
+   * @param {string} symbol An operation symbol to append.
    */
   _pushSymbol(symbol) {
     const last = this.queue[this.queue.length - 1];
     if (last === undefined) {
       return;
     }
-    if (isNaN(last)) {
+    if (Number.isNaN(Number(last))) {
       // If it's not a number then it must be a symbol. Replace it with new one.
       this.queue[this.queue.length - 1] = symbol;
     } else {
@@ -200,6 +233,7 @@ export class CalculatorApp {
     }
     this.render();
   }
+
   /**
    * Calculates the value for current queue of arguments and prints the
    * result in the display.
@@ -209,16 +243,16 @@ export class CalculatorApp {
     const queue = Array.from(this.queue);
     // Just a sanity check
     if (queue.length === 0) {
-      this.opResult.innerText = 0;
+      this.opResult.innerText = '0';
       return;
     }
     // Removes any symbol that is at the end of the queue
-    if (isNaN(queue[queue.length - 1])) {
+    if (Number.isNaN(Number(queue[queue.length - 1]))) {
       queue.pop();
     }
     // Again, just to be sure
     if (queue.length === 0) {
-      this.opResult.innerText = 0;
+      this.opResult.innerText = '0';
       return;
     }
     // First we are going to get rid of all "-" signs and set number value of the
@@ -239,7 +273,7 @@ export class CalculatorApp {
       const previous = queue[i - 1];
       const next = queue[i + 1];
       queue[i + 1] = -Number(next);
-      if (!isNaN(previous)) {
+      if (!Number.isNaN(Number(previous))) {
         // if the previous item in the array is a number then replace minus with plus.
         queue[i] = CalculatorApp.PLUS_SYMBOL;
       } else {
@@ -291,8 +325,9 @@ export class CalculatorApp {
     // of computation of the value.
     this.opResult.innerText = queue[0];
     // Override current queue so the next operation will begin with result of this operation.
-    this.queue = isNaN(queue[0]) ? [] : queue;
+    this.queue = Number.isNaN(Number(queue[0])) ? [] : queue;
   }
+
   /**
    * Prints an error when the user requested illegal operation of division by zero.
    * Note, in JavaScript division by 0 results with `Infinity` number.
@@ -306,13 +341,14 @@ export class CalculatorApp {
 
   /**
    * Processes numeric value input.
-   * @param {String|Number} value Numeric value to process
+   * @param {string|number} value Numeric value to process
    */
   processNumber(value) {
     // cast to a number, just to be sure.
     value = Number(value);
     if (value !== value) {
       // NaN !== NaN
+      // eslint-disable-next-line no-console
       console.warn('Passed value is not a number.');
       return;
     }
@@ -337,7 +373,7 @@ export class CalculatorApp {
         // removes the dot from the queue. It is already in the number
         this.queue.pop();
         this.queue[this.queue.length - 1] = last;
-      } else if (!isNaN(last)) {
+      } else if (!Number.isNaN(Number(last))) {
         if (typeof last === 'string') {
           // This must be a fraction already.
           last = this._addFraction(last, value);
@@ -356,6 +392,7 @@ export class CalculatorApp {
     // Now it is the time to reflect current state in the UI.
     this.render();
   }
+
   /**
    * Managing fractions is a bit tricky in JavaScript.
    * When the user input "0", then "." and then "0" again, the result in Number
@@ -366,9 +403,9 @@ export class CalculatorApp {
    * The `sum()` function has to take this into account when processing
    * the queue.
    *
-   * @param {String|Number} num Number to add fraction to
-   * @param {String|Number} value Fraction value to add
-   * @return {String}
+   * @param {string|number} num Number to add fraction to
+   * @param {string|number} value Fraction value to add
+   * @returns {string}
    */
   _addFraction(num, value) {
     let tmp = String(num);
@@ -378,6 +415,7 @@ export class CalculatorApp {
     tmp += value;
     return tmp;
   }
+
   /**
    * Renders current state of values entered by the user in the upper line of
    * the result display.
@@ -403,6 +441,7 @@ export class CalculatorApp {
       this.partsResult.innerHTML = '&nbsp;';
     }
   }
+
   /**
    * Handles keyboard down event.
    * Depending on the originating key it performs operation on the calculator
@@ -410,24 +449,36 @@ export class CalculatorApp {
    * @param {KeyboardEvent} e
    */
   _keyDownHandler(e) {
-    switch (e.key) {
+    switch (e.code) {
       case 'Escape':
         this.clear();
         break;
-      case '+':
+      case 'NumpadAdd':
         this.add();
         break;
-      case '-':
+      case 'Minus':
+      case 'NumpadSubtract':
         this.subtract();
         break;
-      case '*':
+      case 'NumpadMultiply':
         this.multiply();
         break;
-      case '/':
+      case 'Slash':
+      case 'NumpadDivide':
         this.divide();
         break;
-      case '=':
+      case 'Enter':
+      case 'NumpadEnter':
+        // The "equals" sign on the num pad is the same button as enter.
         this.calculate();
+        break;
+      case 'Equal':
+        if (e.shiftKey) {
+          // this is the "+" sig 
+          this.add();
+        } else {
+          this.calculate();
+        }
         break;
       case '.':
       case ',':
@@ -437,18 +488,17 @@ export class CalculatorApp {
         this.backspace();
         break;
       default:
-        // The "equals" sign on the num pad is the same button as enter. It can be tested using
-        // KeyboardEvent.code property.
-        if (e.code === 'NumpadEnter') {
-          this.calculate();
-          return;
-        }
-        // Numeric kays have number value on KeyboardEvent.key
-        if (!isNaN(e.key)) {
+        // console.log(e.key, e.code);
+        if (e.code === 'Digit8' && e.shiftKey) {
+          // number 8 with shift = "*""
+          this.multiply();
+        } else if (e.key !== '' && !Number.isNaN(Number(e.key))) {
+          // Numeric kays have number value on KeyboardEvent.key
           this.processNumber(e.key);
         }
     }
   }
+
   /**
    * Clears current result and the queue.
    */
@@ -458,5 +508,3 @@ export class CalculatorApp {
     this.queue = [];
   }
 }
-const app = new CalculatorApp();
-app.init();

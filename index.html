@@ -192,7 +192,12 @@
     </div>
     <p class="info">Press ESC key to clear the result</p>
   </section>
-  <script type="module" src="./src/demo-calculator.js" async></script>
+  <script type="module">
+    import { CalculatorApp } from './src/demo-calculator.js';
+    
+    const app = new CalculatorApp();
+    app.init();
+  </script>
 </body>
 
 </html>

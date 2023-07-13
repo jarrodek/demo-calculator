@@ -1,7 +1,24 @@
+/* eslint-disable prefer-destructuring */
 import { assert, fixture } from '@open-wc/testing';
-import sinon from 'sinon/pkg/sinon-esm.js';
-import { keyDownOn } from '@polymer/iron-test-helpers/mock-interactions.js';
+import sinon from 'sinon';
 import { CalculatorApp } from '../src/demo-calculator.js';
+
+/**
+ * @param {EventTarget} element
+ * @param {string} code
+ * @param {KeyboardEventInit=} opts
+ * @returns {void}
+ */
+function keyDownOn(element, code, opts = {}) {
+  const defaults = /** @type KeyboardEventInit */ ({
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+  });
+  const options = { ...defaults, ...opts, ...{ code } };
+  const down = new KeyboardEvent('keydown', options);
+  element.dispatchEvent(down);
+}
 
 describe('CalculatorApp', () => {
   let partsResult;
@@ -13,6 +30,7 @@ describe('CalculatorApp', () => {
   });
 
   describe('constructor()', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(() => {
       instance = new CalculatorApp();
@@ -25,6 +43,7 @@ describe('CalculatorApp', () => {
   });
 
   describe('partsResult', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(async () => {
       await fixture('<span id="partsResult" class="display-parts">&nbsp;</span>');
@@ -37,6 +56,7 @@ describe('CalculatorApp', () => {
   });
 
   describe('opResult', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(async () => {
       await fixture('<span id="opResult">&nbsp;</span>');
@@ -49,6 +69,7 @@ describe('CalculatorApp', () => {
   });
 
   describe('add()', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(() => {
       instance = new CalculatorApp();
@@ -68,6 +89,7 @@ describe('CalculatorApp', () => {
   });
 
   describe('multiply()', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(() => {
       instance = new CalculatorApp();
@@ -87,6 +109,7 @@ describe('CalculatorApp', () => {
   });
 
   describe('divide()', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(() => {
       instance = new CalculatorApp();
@@ -106,6 +129,7 @@ describe('CalculatorApp', () => {
   });
 
   describe('subtract()', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(() => {
       instance = new CalculatorApp();
@@ -129,7 +153,7 @@ describe('CalculatorApp', () => {
       assert.deepEqual(instance.queue, [CalculatorApp.MINUS_SYMBOL]);
     });
 
-    it('Adds symbol when previous symbol', () => {
+    it('adds another symbol when has previous symbol', () => {
       instance.queue = [CalculatorApp.MINUS_SYMBOL];
       instance.subtract();
       assert.deepEqual(instance.queue, [CalculatorApp.MINUS_SYMBOL, CalculatorApp.MINUS_SYMBOL]);
@@ -137,6 +161,7 @@ describe('CalculatorApp', () => {
   });
 
   describe('dot()', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(() => {
       instance = new CalculatorApp();
@@ -168,6 +193,7 @@ describe('CalculatorApp', () => {
   });
 
   describe('backspace()', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(() => {
       instance = new CalculatorApp();
@@ -212,6 +238,7 @@ describe('CalculatorApp', () => {
   });
 
   describe('_pushSymbol()', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(() => {
       instance = new CalculatorApp();
@@ -243,6 +270,7 @@ describe('CalculatorApp', () => {
   });
 
   describe('calculate()', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(() => {
       instance = new CalculatorApp();
@@ -267,8 +295,8 @@ describe('CalculatorApp', () => {
       [[1, CalculatorApp.MINUS_SYMBOL, 2, CalculatorApp.MINUS_SYMBOL, 3], -4],
       [[1, CalculatorApp.PLUS_SYMBOL, 2, CalculatorApp.PLUS_SYMBOL, 3], 6]
     ].forEach((item) => {
-      it('Calculates ' + item[0], () => {
-        instance.queue = item[0];
+      it(`Calculates ${item[0]}`, () => {
+        instance.queue = /** @type number[] */ (item[0]);
         instance.calculate();
         assert.equal(opResult.innerText.trim(), item[1]);
       });
@@ -282,9 +310,14 @@ describe('CalculatorApp', () => {
   });
 
   describe('Buttons click', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(() => {
       instance = new CalculatorApp();
+    });
+
+    afterEach(() => {
+      instance.release();
     });
 
     [
@@ -304,28 +337,28 @@ describe('CalculatorApp', () => {
       ['sub', [1, CalculatorApp.MINUS_SYMBOL], [1]],
       ['add', [1, CalculatorApp.PLUS_SYMBOL], [1]]
     ].forEach((item) => {
-      it('Handles button click for ' + item[0], async () => {
+      it(`Handles button click for ${item[0]}`, async () => {
         if (item[2]) {
-          instance.queue = item[2];
+          instance.queue = /** @type number[] */ (item[2]);
         }
         const value = item[0];
-        const button = await fixture(`<button class="action" data-value="${value}">${value}</button>`);
+        const button = /** @type HTMLButtonElement */ (await fixture(`<button class="action" data-value="${value}">${value}</button>`));
         instance.init();
         button.click();
-        assert.deepEqual(instance.queue, item[1]);
+        assert.deepEqual(instance.queue, /** @type number[] */ (item[1]));
       });
     });
 
     it('Handles sum key', async () => {
       instance.queue = [1, CalculatorApp.PLUS_SYMBOL, 1];
-      const button = await fixture(`<button class="action" data-value="sum">=</button>`);
+      const button = /** @type HTMLButtonElement */ (await fixture(`<button class="action" data-value="sum">=</button>`));
       instance.init();
       button.click();
       assert.equal(opResult.innerText.trim(), '2');
     });
 
     it('Removes focus from the button', async () => {
-      const button = await fixture(`<button class="action" data-value="1">1<button>`);
+      const button = /** @type HTMLButtonElement */ (await fixture(`<button class="action" data-value="1">1<button>`));
       instance.init();
       button.focus();
       const spy = sinon.spy(button, 'blur');
@@ -335,6 +368,7 @@ describe('CalculatorApp', () => {
   });
 
   describe('processNumber()', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(() => {
       instance = new CalculatorApp();
@@ -381,6 +415,7 @@ describe('CalculatorApp', () => {
   });
 
   describe('clear()', () => {
+    /** @type CalculatorApp */
     let instance;
     beforeEach(() => {
       instance = new CalculatorApp();
@@ -406,89 +441,122 @@ describe('CalculatorApp', () => {
   });
 
   describe('Keyboard control', () => {
+    /** @type CalculatorApp */
     let instance;
+
     beforeEach(() => {
       instance = new CalculatorApp();
       instance.init();
     });
 
-    it('Calls clear() for Escape button', () => {
+    afterEach(() => {
+      instance.release();
+    });
+
+    it('calls clear() for the "Escape" keys', () => {
       const spy = sinon.spy(instance, 'clear');
-      keyDownOn(document.body, 27, '', 'Escape');
+      keyDownOn(document.body, 'Escape', { keyCode: 27 });
       assert.isTrue(spy.called);
     });
 
-    it('Calls add() for + button', () => {
+    it('calls add() for the NumpadAdd keys', () => {
       const spy = sinon.spy(instance, 'add');
-      keyDownOn(document.body, 0, '', '+');
+      keyDownOn(document.body, 'NumpadAdd');
       assert.isTrue(spy.called);
     });
 
-    it('Calls subtract() for - button', () => {
+    it('calls add() for the shift and Equal keys', () => {
+      const spy = sinon.spy(instance, 'add');
+      keyDownOn(document.body, 'Equal', { shiftKey: true });
+      assert.isTrue(spy.called);
+    });
+
+    it('calls subtract() for the Minus key', () => {
       const spy = sinon.spy(instance, 'subtract');
-      keyDownOn(document.body, 0, '', '-');
+      keyDownOn(document.body, 'Minus');
       assert.isTrue(spy.called);
     });
 
-    it('Calls multiply() for * button', () => {
+    it('calls subtract() for the NumpadSubtract key', () => {
+      const spy = sinon.spy(instance, 'subtract');
+      keyDownOn(document.body, 'NumpadSubtract');
+      assert.isTrue(spy.called);
+    });
+
+    it('calls multiply() for the NumpadMultiply key', () => {
       const spy = sinon.spy(instance, 'multiply');
-      keyDownOn(document.body, 0, '', '*');
+      keyDownOn(document.body, 'NumpadMultiply');
       assert.isTrue(spy.called);
     });
 
-    it('Calls divide() for / button', () => {
+    it('calls add() for the shift and Digit8 keys', () => {
+      const spy = sinon.spy(instance, 'multiply');
+      keyDownOn(document.body, 'Digit8', { shiftKey: true, key: '8' });
+      assert.isTrue(spy.called);
+    });
+
+    it('calls divide() for the Slash key', () => {
       const spy = sinon.spy(instance, 'divide');
-      keyDownOn(document.body, 0, '', '/');
+      keyDownOn(document.body, 'Slash');
       assert.isTrue(spy.called);
     });
 
-    it('Calls calculate() for = button', () => {
+    it('calls divide() for the NumpadDivide key', () => {
+      const spy = sinon.spy(instance, 'divide');
+      keyDownOn(document.body, 'NumpadDivide');
+      assert.isTrue(spy.called);
+    });
+
+    it('calls calculate() for the Enter key', () => {
       const spy = sinon.spy(instance, 'calculate');
-      keyDownOn(document.body, 0, '', '=');
+      keyDownOn(document.body, 'Enter');
       assert.isTrue(spy.called);
     });
 
-    it('Calls dot() for . button', () => {
+    it('calls calculate() for the NumpadEnter key', () => {
+      const spy = sinon.spy(instance, 'calculate');
+      keyDownOn(document.body, 'NumpadEnter');
+      assert.isTrue(spy.called);
+    });
+
+    it('calls calculate() for the Equal key', () => {
+      const spy = sinon.spy(instance, 'calculate');
+      keyDownOn(document.body, 'Equal');
+      assert.isTrue(spy.called);
+    });
+
+    it('calls dot() for . keys', () => {
       const spy = sinon.spy(instance, 'dot');
-      keyDownOn(document.body, 0, '', '.');
+      keyDownOn(document.body, '.');
       assert.isTrue(spy.called);
     });
 
-    it('Calls dot() for , button', () => {
+    it('calls dot() for , keys', () => {
       const spy = sinon.spy(instance, 'dot');
-      keyDownOn(document.body, 0, '', ',');
+      keyDownOn(document.body, ',');
       assert.isTrue(spy.called);
     });
 
-    it('Calls backspace() for , button', () => {
+    it('calls backspace() for , keys', () => {
       const spy = sinon.spy(instance, 'backspace');
-      keyDownOn(document.body, 0, '', 'Backspace');
+      keyDownOn(document.body, 'Backspace');
       assert.isTrue(spy.called);
     });
 
-    it('Calls calculate() for NumpadEnter button', () => {
-      const spy = sinon.spy(instance, 'calculate');
-      const e = new CustomEvent('keydown', {
-        detail: 0,
-        bubbles: true,
-        cancelable: true
-      });
-      e.keyCode = 13;
-      e.key = 'Enter';
-      e.code = 'NumpadEnter';
-      document.body.dispatchEvent(e);
-      keyDownOn(document.body, 0, '', 'NumpadEnter');
-      assert.isTrue(spy.called);
-    });
-
-    it('Calls processNumber() for numeric button', () => {
+    it('calls processNumber() for numeric keys', () => {
       const spy = sinon.spy(instance, 'processNumber');
-      keyDownOn(document.body, 0, '', 1);
+      keyDownOn(document.body, 'Digit1', { key: '1' });
       assert.isTrue(spy.called);
     });
 
-    it('Ignores other keys', () => {
-      keyDownOn(document.body, 0, '', ';');
+    it('calls clear() for the Escape key', () => {
+      const spy = sinon.spy(instance, 'clear');
+      keyDownOn(document.body, 'Escape');
+      assert.isTrue(spy.called);
+    });
+
+    it('ignores other keys', () => {
+      keyDownOn(document.body, ';');
       assert.deepEqual(instance.queue, []);
     });
   });

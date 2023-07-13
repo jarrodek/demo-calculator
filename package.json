@@ -25,29 +25,31 @@
     "lint": "npm run lint:eslint",
     "format": "npm run format:eslint",
     "start:build": "cd dist/ && serve",
-    "build": "rimraf dist && rollup -c rollup.config.js",
+    "build": "rimraf dist && rollup -c rollup.config.mjs",
     "test": "web-test-runner test/**/*.test.js --coverage --node-resolve --playwright --browsers chromium webkit",
     "test:watch": "web-test-runner test/**/*.test.js --node-resolve --watch --playwright --browsers chromium",
-    "start": "web-dev-server --app-index index.html --node-resolve --open --watch --root-dir ."
+    "start": "wds"
   },
   "devDependencies": {
-    "@commitlint/cli": "^12.1.1",
-    "@commitlint/config-conventional": "^12.1.1",
-    "@open-wc/building-rollup": "^1.10.0",
-    "@open-wc/eslint-config": "^4.3.0",
-    "@open-wc/testing": "^2.5.33",
-    "@polymer/iron-test-helpers": "^3.0.1",
-    "@web/dev-server": "^0.1.17",
-    "@web/test-runner": "^0.13.4",
-    "@web/test-runner-playwright": "^0.8.5",
-    "deepmerge": "^4.2.2",
-    "eslint": "^7.25.0",
-    "eslint-config-prettier": "^8.3.0",
-    "husky": "^6.0.0",
-    "lint-staged": "^10.5.4",
-    "rimraf": "^3.0.2",
-    "rollup": "^2.47.0",
-    "sinon": "^10.0.0"
+    "@commitlint/cli": "^17.6.6",
+    "@commitlint/config-conventional": "^17.6.6",
+    "@open-wc/building-rollup": "^3.0.1",
+    "@open-wc/eslint-config": "^12.0.0",
+    "@open-wc/testing": "^3.2.0",
+    "@web/dev-server": "^0.3.0",
+    "@web/dev-server-esbuild": "^0.4.1",
+    "@web/test-runner": "^0.17.0",
+    "@web/test-runner-playwright": "^0.10.1",
+    "deepmerge": "^4.3.1",
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "^8.8.0",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.2.3",
+    "rimraf": "^5.0.1",
+    "rollup": "^3.26.2",
+    "sinon": "^15.2.0",
+    "typescript": "^5.1.6",
+    "typescript-lit-html-plugin": "^0.9.0"
   },
   "lint-staged": {
     "*.js": [
@@ -55,9 +57,5 @@
       "prettier --write",
       "git add"
     ]
-  },
-  "dependencies": {
-    "lit-element": "^2.0.1",
-    "lit-html": "^1.1.1"
   }
 }
